@@ -42,42 +42,27 @@ jobs:
         env:
           NODE_ENV: test
           MONGO_URI: mongodb://localhost:27017/ecommerce-test
-
-  build-and-push:
-    name: Build Docker images and push to ACR
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Login to ACR
-        run: az acr login --name ecommerceregistryad2024
-
-      - name: Debug registry value
+      - name: Check secrets
+        run: |
+          echo "Registry length: ${#REGISTRY}"
+          if [ -z "$REGISTRY" ]; then
+            echo "REGISTRY IS EMPTY!"
+          else
+            echo "REGISTRY IS SET"
+          fi
         env:
-          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        run: echo "Registry is $REGISTRY"
+          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}    
 
       - name: Build and push server image
-        env:
-          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}
         run: |
+          REGISTRY="ecommerceregistryad2024.azurecr.io"
           docker build -t $REGISTRY/server:${{ github.sha }} -t $REGISTRY/server:latest ./server
           docker push $REGISTRY/server:${{ github.sha }}
           docker push $REGISTRY/server:latest
 
       - name: Build and push client image
-        env:
-          REGISTRY: ${{ secrets.REGISTRY_LOGIN_SERVER }}
         run: |
+          REGISTRY="ecommerceregistryad2024.azurecr.io"
           docker build \
             --build-arg VITE_API_URL=http://${{ secrets.INGRESS_IP }}/api \
             -t $REGISTRY/client:${{ github.sha }} \
