@@ -1,0 +1,12 @@
+#server/.dockerignore
+node_modules
+.env
+coverage
+__tests__
+*.log
+
+#client/.dockerignore
+node_modules
+.env
+dist
+*.log
