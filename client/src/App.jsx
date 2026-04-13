@@ -1,29 +1,35 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
+import { CartProvider, useCart } from './context/CartContext';
 import Products from './pages/Products';
 import Cart from './pages/Cart';
 
+function Nav() {
+  const { cart } = useCart();
+  return (
+    <nav style={{ background: '#1E4D8C', color: '#fff', padding: '0 24px',
+      display: 'flex', alignItems: 'center', height: 60, gap: 24 }}>
+      <Link to='/' style={{ color: '#fff', fontWeight: 700,
+        textDecoration: 'none', fontSize: 18 }}>
+        ShopApp
+      </Link>
+      <Link to='/cart' style={{ color: '#fff', textDecoration: 'none',
+        marginLeft: 'auto' }}>
+        Cart ({cart.reduce((s, i) => s + i.quantity, 0)})
+      </Link>
+    </nav>
+  );
+}
+
 export default function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
-        <nav style={{ background: '#1E4D8C', padding: '12px 24px',
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center' }}>
-          <Link to='/' style={{ color: '#fff', fontWeight: 700,
-            fontSize: 20, textDecoration: 'none' }}>
-            🛒 eCommerce
-          </Link>
-          <Link to='/cart' style={{ color: '#fff',
-            textDecoration: 'none', fontWeight: 600 }}>
-            Cart
-          </Link>
-        </nav>
+    <BrowserRouter>
+      <CartProvider>
+        <Nav />
         <Routes>
           <Route path='/'     element={<Products />} />
           <Route path='/cart' element={<Cart />} />
         </Routes>
-      </BrowserRouter>
-    </CartProvider>
+      </CartProvider>
+    </BrowserRouter>
   );
 }
